@@ -108,5 +108,4 @@ https://doh.cmliussss.hidns.co/ip-info?ip=8.8.8.8&token=CMLiussss
 本项目开源使用，欢迎自由部署和修改！
 
 ## 🙏 鸣谢
-[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
 [tina-hello](https://github.com/tina-hello/doh-cf-workers)、[ip-api](https://ip-api.com/)、Cloudflare、GPT

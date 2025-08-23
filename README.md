@@ -95,7 +95,7 @@ https://doh.cmliussss.hidns.co/ip-info?ip=8.8.8.8&token=CMLiussss
 > 2. 使用 `security.cloudflare-dns.com` 作为DoH上游时，可**阻止恶意软件**的DNS解析服务；
 > 3. 使用 `family.cloudflare-dns.com` 作为DoH上游时，可**阻止恶意软件**和**成人内容**的DNS解析服务；
 > 4. 已知 `doh.pub` **自带污染**，不适合作为DoH上游；
-> 5. 目前 `dns.alidns.com` 和 `doh.360.cn` 在**非中国大陆环境**请求DoH时，会下发干净DNS解析服务，也就是**可以作为CF-DoH的上游**，但是**解析速度不佳**。
+> 5. 目前 `sm2.doh.pub`、`dns.alidns.com` 和 `doh.360.cn` 在**非中国大陆环境**请求DoH时，会下发干净DNS解析服务，也就是**可以作为CF-DoH的上游**，但是**解析速度不佳**。
 
 ## ⭐ Star 星星走起
 [![Stargazers over time](https://starchart.cc/cmliu/CF-Workers-DoH.svg?variant=adaptive)](https://starchart.cc/cmliu/CF-Workers-DoH)

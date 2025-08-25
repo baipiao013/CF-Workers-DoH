@@ -805,6 +805,22 @@ async function HTML() {
       display: inline-block;
     }
 
+    .geo-blocked {
+      color: #ffffff;
+      background-color: #dc3545;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+      animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
     .geo-loading {
       color: rgb(150, 100, 80);
       font-style: italic;
@@ -1017,6 +1033,29 @@ async function HTML() {
     // 记录当前使用的 DoH 地址
     let activeDohUrl = currentDohUrl;
 
+    // 阻断IP列表
+    const 阻断IPv4 = [
+      '104.21.16.1',
+      '104.21.32.1',
+      '104.21.48.1',
+      '104.21.64.1',
+      '104.21.80.1',
+      '104.21.96.1',
+      '104.21.112.1'
+    ];
+
+    const 阻断IPv6 = [
+      '2606:4700:3030::6815:1001',
+      '2606:4700:3030::6815:3001',
+      '2606:4700:3030::6815:7001',
+      '2606:4700:3030::6815:5001'
+    ];
+
+    // 检查IP是否在阻断列表中
+    function isBlockedIP(ip) {
+      return 阻断IPv4.includes(ip) || 阻断IPv6.includes(ip);
+    }
+
     // 显示当前正在使用的 DoH 服务
     function updateActiveDohDisplay() {
       const dohSelect = document.getElementById('dohSelect');
@@ -1152,29 +1191,62 @@ async function HTML() {
                 
                 // 添加地理位置信息
                 const geoInfoSpan = recordDiv.querySelector('.geo-info');
-                // 异步查询 IP 地理位置信息
-                queryIpGeoInfo(record.data).then(geoData => {
-                  if (geoData && geoData.status === 'success') {
-                    // 更新为实际的地理位置信息
+                
+                // 检查是否为阻断IP
+                if (isBlockedIP(record.data)) {
+                  // 异步查询 IP 地理位置信息获取AS信息
+                  queryIpGeoInfo(record.data).then(geoData => {
                     geoInfoSpan.innerHTML = '';
                     geoInfoSpan.classList.remove('geo-loading');
                     
-                    // 添加国家信息
-                    const countrySpan = document.createElement('span');
-                    countrySpan.className = 'geo-country';
-                    countrySpan.textContent = geoData.country || '未知国家';
-                    geoInfoSpan.appendChild(countrySpan);
+                    // 显示阻断IP标识（替代国家信息）
+                    const blockedSpan = document.createElement('span');
+                    blockedSpan.className = 'geo-blocked';
+                    blockedSpan.textContent = '阻断IP';
+                    geoInfoSpan.appendChild(blockedSpan);
                     
-                    // 添加 AS 信息
-                    const asSpan = document.createElement('span');
-                    asSpan.className = 'geo-as';
-                    asSpan.textContent = geoData.as || '未知 AS';
-                    geoInfoSpan.appendChild(asSpan);
-                  } else {
-                    // 查询失败或无结果
-                    geoInfoSpan.textContent = '位置信息获取失败';
-                  }
-                });
+                    // 如果有AS信息，正常显示
+                    if (geoData && geoData.status === 'success' && geoData.as) {
+                      const asSpan = document.createElement('span');
+                      asSpan.className = 'geo-as';
+                      asSpan.textContent = geoData.as;
+                      geoInfoSpan.appendChild(asSpan);
+                    }
+                  }).catch(() => {
+                    // 查询失败时仍显示阻断IP标识
+                    geoInfoSpan.innerHTML = '';
+                    geoInfoSpan.classList.remove('geo-loading');
+                    
+                    const blockedSpan = document.createElement('span');
+                    blockedSpan.className = 'geo-blocked';
+                    blockedSpan.textContent = '阻断IP';
+                    geoInfoSpan.appendChild(blockedSpan);
+                  });
+                } else {
+                  // 异步查询 IP 地理位置信息
+                  queryIpGeoInfo(record.data).then(geoData => {
+                    if (geoData && geoData.status === 'success') {
+                      // 更新为实际的地理位置信息
+                      geoInfoSpan.innerHTML = '';
+                      geoInfoSpan.classList.remove('geo-loading');
+                      
+                      // 添加国家信息
+                      const countrySpan = document.createElement('span');
+                      countrySpan.className = 'geo-country';
+                      countrySpan.textContent = geoData.country || '未知国家';
+                      geoInfoSpan.appendChild(countrySpan);
+                      
+                      // 添加 AS 信息
+                      const asSpan = document.createElement('span');
+                      asSpan.className = 'geo-as';
+                      asSpan.textContent = geoData.as || '未知 AS';
+                      geoInfoSpan.appendChild(asSpan);
+                    } else {
+                      // 查询失败或无结果
+                      geoInfoSpan.textContent = '位置信息获取失败';
+                    }
+                  });
+                }
               }
             });
           }
@@ -1227,29 +1299,62 @@ async function HTML() {
                 
                 // 添加地理位置信息
                 const geoInfoSpan = recordDiv.querySelector('.geo-info');
-                // 异步查询 IP 地理位置信息
-                queryIpGeoInfo(record.data).then(geoData => {
-                  if (geoData && geoData.status === 'success') {
-                    // 更新为实际的地理位置信息
+                
+                // 检查是否为阻断IP
+                if (isBlockedIP(record.data)) {
+                  // 异步查询 IP 地理位置信息获取AS信息
+                  queryIpGeoInfo(record.data).then(geoData => {
                     geoInfoSpan.innerHTML = '';
                     geoInfoSpan.classList.remove('geo-loading');
                     
-                    // 添加国家信息
-                    const countrySpan = document.createElement('span');
-                    countrySpan.className = 'geo-country';
-                    countrySpan.textContent = geoData.country || '未知国家';
-                    geoInfoSpan.appendChild(countrySpan);
+                    // 显示阻断IP标识（替代国家信息）
+                    const blockedSpan = document.createElement('span');
+                    blockedSpan.className = 'geo-blocked';
+                    blockedSpan.textContent = '阻断IP';
+                    geoInfoSpan.appendChild(blockedSpan);
                     
-                    // 添加 AS 信息
-                    const asSpan = document.createElement('span');
-                    asSpan.className = 'geo-as';
-                    asSpan.textContent = geoData.as || '未知 AS';
-                    geoInfoSpan.appendChild(asSpan);
-                  } else {
-                    // 查询失败或无结果
-                    geoInfoSpan.textContent = '位置信息获取失败';
-                  }
-                });
+                    // 如果有AS信息，正常显示
+                    if (geoData && geoData.status === 'success' && geoData.as) {
+                      const asSpan = document.createElement('span');
+                      asSpan.className = 'geo-as';
+                      asSpan.textContent = geoData.as;
+                      geoInfoSpan.appendChild(asSpan);
+                    }
+                  }).catch(() => {
+                    // 查询失败时仍显示阻断IP标识
+                    geoInfoSpan.innerHTML = '';
+                    geoInfoSpan.classList.remove('geo-loading');
+                    
+                    const blockedSpan = document.createElement('span');
+                    blockedSpan.className = 'geo-blocked';
+                    blockedSpan.textContent = '阻断IP';
+                    geoInfoSpan.appendChild(blockedSpan);
+                  });
+                } else {
+                  // 异步查询 IP 地理位置信息
+                  queryIpGeoInfo(record.data).then(geoData => {
+                    if (geoData && geoData.status === 'success') {
+                      // 更新为实际的地理位置信息
+                      geoInfoSpan.innerHTML = '';
+                      geoInfoSpan.classList.remove('geo-loading');
+                      
+                      // 添加国家信息
+                      const countrySpan = document.createElement('span');
+                      countrySpan.className = 'geo-country';
+                      countrySpan.textContent = geoData.country || '未知国家';
+                      geoInfoSpan.appendChild(countrySpan);
+                      
+                      // 添加 AS 信息
+                      const asSpan = document.createElement('span');
+                      asSpan.className = 'geo-as';
+                      asSpan.textContent = geoData.as || '未知 AS';
+                      geoInfoSpan.appendChild(asSpan);
+                    } else {
+                      // 查询失败或无结果
+                      geoInfoSpan.textContent = '位置信息获取失败';
+                    }
+                  });
+                }
               }
             });
           }
